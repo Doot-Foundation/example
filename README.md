@@ -1,28 +1,91 @@
-# Doot Example Contract Interactions
+# Doot Oracle Client Examples
 
-Guide to help people understand how to use the `@doot-oracles/client` npm package with their smart contract.
+This directory contains practical examples demonstrating how to use the `@dootfoundation/client` package.
 
-## Get Started
+## Examples
 
-1. Clone the repository
+### 1. `doot-demo.ts` - Comprehensive Demo
+A complete demonstration of all Doot Oracle client features:
 
-   `git clone https://github.com/Doot-Foundation/doot_example.git`
+- **API Method**: Fast price fetching from Doot servers
+- **L2 Method**: Direct blockchain calls to Zeko L2
+- **L1 Method**: Secure calls to Mina L1 blockchain
+- **Smart Fallback**: Automatic API → L2 → L1 failover
+- **Multiple Tokens**: Batch price fetching
+- **Key Validation**: API key verification
 
-2. Move into the directory and install the packages. This includes the `@doot-oracles/client` package by default.
+Run the demo:
+```bash
+npm run build
+node build/src/doot-demo.js
+```
 
-   `cd doot_example/`
+### 2. `interact.ts` - zkApp Integration
+Shows how to integrate Doot price feeds into a Mina zkApp:
 
-   `npm install`
+- Fetches price data using smart fallback
+- Creates zkApp transactions with verified prices
+- Demonstrates on-chain price updates
+- Calculates exchange rates
 
-3. Visit https://doot.foundation/dashboard and after logging in click on your API key to copy it to the clipboard. In your cloned project you will see a `.env.example`, using the same contents create a new `.env` file and paste the API key after `DOOT_API_KEY=`.
-   The final result should be a new .env file with your API key.
+Run the zkApp example:
+```bash
+npm run build
+node build/src/interact.js
+```
 
-4. Build the project
-   `npm run build`
+## Setup
 
-5. Run the example
-   `node build/src/interact.js`
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-### The Result?
+2. **Add API key** (create `.env` file):
+   ```bash
+   DOOT_API_KEY=your-api-key-here
+   ```
+   Get a free API key at: https://doot.foundation/dashboard
 
-You will be presented with the current exchange rates between `$MINA` and `$ETH`.
+3. **Build and run**:
+   ```bash
+   npm run build
+   node build/src/doot-demo.js
+   ```
+
+## Key Concepts Demonstrated
+
+### Method Comparison
+- **API**: Fastest (~100ms), requires valid key
+- **L2**: Fast (~10-30s), decentralized via Zeko
+- **L1**: Secure (~30-60s), maximum security via Mina
+
+### Error Handling
+All examples show proper error handling for network issues, invalid keys, and blockchain timeouts.
+
+### Data Structure
+All methods return identical format:
+```javascript
+{
+  source: 'API',
+  price_data: {
+    token: 'bitcoin',
+    price: '65432.12',
+    oracle: 'B62q...',
+    signature: 'ABC123...'
+  }
+}
+```
+
+## Notes
+
+- L2/L1 methods require blockchain compilation (commented out in demo for speed)
+- Smart fallback automatically chooses best available source
+- All prices include zero-knowledge proof signatures
+- Works in any Node.js environment, no special setup required
+
+## Next Steps
+
+- Read full documentation: https://docs.doot.foundation
+- Install package: `npm install @dootfoundation/client`
+- Get API key: https://doot.foundation/dashboard

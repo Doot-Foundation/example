@@ -19,7 +19,7 @@ export class Swap extends SmartContract {
     super.init();
   }
 
-  @method updatePrices(
+  @method async updatePrices(
     priceE: Field,
     signatureE: Signature,
     priceM: Field,
@@ -39,7 +39,7 @@ export class Swap extends SmartContract {
     this.ethereumPrice.set(priceE);
   }
 
-  @method setExchangeRates(minaToEth: Field, ethToMina: Field) {
+  @method async setExchangeRates(minaToEth: Field, ethToMina: Field) {
     this.ethToMinaExchange.getAndRequireEquals();
     this.minaToEthExchange.getAndRequireEquals();
 

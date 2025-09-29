@@ -11,28 +11,28 @@ import {
 } from 'o1js';
 
 import { Swap } from './Swap.js';
-import { Client, ClientResultObject } from '@doot-oracles/client';
+import { Client, ClientResultObject } from '@dootfoundation/client';
 
 const client = new Client(
   process.env.DOOT_API_KEY ? process.env.DOOT_API_KEY : ''
 );
 
-const mina: ClientResultObject = await client.Price('mina');
-const ethereum: ClientResultObject = await client.Price('ethereum');
+const mina: ClientResultObject = await client.getData('mina');
+const ethereum: ClientResultObject = await client.getData('ethereum');
 
-const priceM = Field.from(mina.price);
-const signatureM = Signature.fromBase58(mina.signature);
-const priceE = Field.from(ethereum.price);
-const signatureE = Signature.fromBase58(ethereum.signature);
+const priceM = Field.from(mina.price_data.price);
+const signatureM = Signature.fromBase58(mina.price_data.signature);
+const priceE = Field.from(ethereum.price_data.price);
+const signatureE = Signature.fromBase58(ethereum.price_data.signature);
 
-const oracle = PublicKey.fromBase58(mina.oracle);
+const oracle = PublicKey.fromBase58(mina.price_data.oracle);
 
 const proofsEnabled = false;
 
-const Local = Mina.LocalBlockchain({ proofsEnabled: proofsEnabled });
+const Local = await Mina.LocalBlockchain({ proofsEnabled: proofsEnabled });
 Mina.setActiveInstance(Local);
 
-const deployerPK = Local.testAccounts[0].privateKey;
+const deployerPK = Local.testAccounts[0].key;
 const deployer = deployerPK.toPublicKey();
 const zkappPK = PrivateKey.random();
 const zkapp = zkappPK.toPublicKey();
@@ -42,9 +42,9 @@ const swap = new Swap(zkapp);
 
 console.log('\nDeploying Swap...');
 
-let txn = await Mina.transaction(deployer, () => {
+let txn = await Mina.transaction(deployer, async () => {
   AccountUpdate.fundNewAccount(deployer);
-  swap.deploy({ zkappKey: zkappPK });
+  await swap.deploy();
 });
 
 await txn.prove();
@@ -58,8 +58,8 @@ console.log('Strings ->');
 console.log('MINA / USD:', swap.minaPrice.get().toString());
 console.log('ETH / USD :', swap.ethereumPrice.get().toString());
 
-txn = await Mina.transaction(deployer, () => {
-  swap.updatePrices(priceE, signatureE, priceM, signatureM, oracle);
+txn = await Mina.transaction(deployer, async () => {
+  await swap.updatePrices(priceE, signatureE, priceM, signatureM, oracle);
 });
 await txn.prove();
 await txn.sign([deployerPK]).send();
@@ -84,8 +84,8 @@ const ethToMina = Field.from(
   (BigInt(onChainEthPrice) * 10000000000n) / BigInt(onChainMinaPrice)
 );
 
-txn = await Mina.transaction(deployer, () => {
-  swap.setExchangeRates(minaToEth, ethToMina);
+txn = await Mina.transaction(deployer, async () => {
+  await swap.setExchangeRates(minaToEth, ethToMina);
 });
 await txn.prove();
 await txn.sign([deployerPK]).send();
