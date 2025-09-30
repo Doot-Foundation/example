@@ -5,7 +5,15 @@ import { Client, validtokens } from '@dootfoundation/client';
 
 const client = new Client(process.env.DOOT_API_KEY || '');
 
-console.log('Doot Oracle Client Demo\n');
+console.log('='.repeat(50));
+console.log('='.repeat(50));
+console.log('** Doot Foundation Client Demo **');
+console.log('='.repeat(50));
+console.log('='.repeat(50));
+console.log(
+  'REMINDER : THE RETURNED PRICE FROM THE API AND L1/L2 ARE NORMALIZED FOR MINA BY MULTIPLYING THEM WITH 10*10',
+  "\nBECAUSE MINA CAN'T HANDLE DECIMAL POINTS. (FIELD ARITHEMATIC DOESN'T ALLOW DECIMALS)"
+);
 console.log('='.repeat(50));
 
 async function demonstrateAPI() {
@@ -15,22 +23,27 @@ async function demonstrateAPI() {
   try {
     const bitcoin = await client.getFromAPI('bitcoin');
     console.log('SUCCESS - Bitcoin from API:');
-    console.log(`   Price: $${parseFloat(bitcoin.price_data.price).toFixed(2)}`);
+    console.log(
+      `   Price: $${parseFloat(bitcoin.price_data.price) / 10000000000}`
+    );
     console.log(`   Source: ${bitcoin.source}`);
     console.log(`   Oracle: ${bitcoin.price_data.oracle}`);
 
     const ethereum = await client.getFromAPI('ethereum');
     console.log('SUCCESS - Ethereum from API:');
-    console.log(`   Price: $${parseFloat(ethereum.price_data.price).toFixed(2)}`);
+    console.log(
+      `   Price: $${parseFloat(ethereum.price_data.price) / 10000000000}`
+    );
     console.log(`   Source: ${ethereum.source}`);
 
     // Calculate ratio
-    const btcPrice = parseFloat(bitcoin.price_data.price);
-    const ethPrice = parseFloat(ethereum.price_data.price);
+    const btcPrice = parseFloat(bitcoin.price_data.price) / 10000000000;
+    const ethPrice = parseFloat(ethereum.price_data.price) / 10000000000;
     console.log(`   BTC/ETH ratio: ${(btcPrice / ethPrice).toFixed(4)}`);
-
   } catch (error) {
-    console.log(`FAILED - API: ${error instanceof Error ? error.message : error}`);
+    console.log(
+      `FAILED - API: ${error instanceof Error ? error.message : error}`
+    );
   }
 }
 
@@ -45,9 +58,10 @@ async function demonstrateL2() {
     console.log(`   Price: $${parseFloat(solana.price_data.price).toFixed(2)}`);
     console.log(`   Source: ${solana.source}`);
     console.log(`   Contract: ${solana.price_data.oracle}`);
-
   } catch (error) {
-    console.log(`FAILED - L2: ${error instanceof Error ? error.message : error}`);
+    console.log(
+      `FAILED - L2: ${error instanceof Error ? error.message : error}`
+    );
     console.log('   Note: L2 compilation takes time and may timeout in demo');
   }
 }
@@ -63,9 +77,10 @@ async function demonstrateL1() {
     console.log(`   Price: $${parseFloat(mina.price_data.price).toFixed(2)}`);
     console.log(`   Source: ${mina.source}`);
     console.log(`   Contract: ${mina.price_data.oracle}`);
-
   } catch (error) {
-    console.log(`FAILED - L1: ${error instanceof Error ? error.message : error}`);
+    console.log(
+      `FAILED - L1: ${error instanceof Error ? error.message : error}`
+    );
     console.log('   Note: L1 compilation takes time and may timeout in demo');
   }
 }
@@ -78,9 +93,15 @@ async function demonstrateFallback() {
   console.log('Testing with valid API key...');
   try {
     const cardano = await client.getData('cardano');
-    console.log(`SUCCESS - Cardano via fallback: $${parseFloat(cardano.price_data.price).toFixed(2)} (${cardano.source})`);
+    console.log(
+      `SUCCESS - Cardano via fallback: $${parseFloat(
+        cardano.price_data.price
+      ).toFixed(2)} (${cardano.source})`
+    );
   } catch (error) {
-    console.log(`FAILED - Fallback: ${error instanceof Error ? error.message : error}`);
+    console.log(
+      `FAILED - Fallback: ${error instanceof Error ? error.message : error}`
+    );
   }
 
   // Test with invalid API key (should fallback to L2/L1)
@@ -88,9 +109,17 @@ async function demonstrateFallback() {
   const invalidClient = new Client('invalid-key-demo');
   try {
     const polygon = await invalidClient.getData('polygon');
-    console.log(`SUCCESS - Polygon via fallback: $${parseFloat(polygon.price_data.price).toFixed(2)} (${polygon.source})`);
+    console.log(
+      `SUCCESS - Polygon via fallback: $${parseFloat(
+        polygon.price_data.price
+      ).toFixed(2)} (${polygon.source})`
+    );
   } catch (error) {
-    console.log(`FAILED - Full fallback: ${error instanceof Error ? error.message : error}`);
+    console.log(
+      `FAILED - Full fallback: ${
+        error instanceof Error ? error.message : error
+      }`
+    );
     console.log('   This is expected in demo due to compilation timeouts');
   }
 }
