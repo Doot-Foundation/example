@@ -42,7 +42,7 @@
     "node": ">=18.14.0"
   },
   "dependencies": {
-    "@dootfoundation/client": "^1.0.4",
+    "@dootfoundation/client": "^1.0.6",
     "dotenv": "^16.4.5"
   }
 }
